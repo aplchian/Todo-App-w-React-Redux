@@ -1,6 +1,5 @@
-import {VisibilityFilters} from '../actions/actions.js'
-import {combineReducers} from 'redux'
-import {map} from 'ramda'
+const { ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER, VisibilityFilters } = require('../actions/actions.js')
+const {combineReducers} = require('redux')
 
 
 
@@ -10,8 +9,17 @@ import {map} from 'ramda'
 // }
 
 
-function todo(state = [],action){
-  switch (action.type)
+function visibilityFilter(state = 'SHOW_ALL', action) {
+  switch (action.type) {
+    case SET_VISIBILITY_FILTER:
+      return action.filter
+    default:
+      return state
+  }
+}
+
+function todos(state = [], action) {
+  switch (action.type) {
     case ADD_TODO:
       return [
         ...state,
@@ -21,36 +29,30 @@ function todo(state = [],action){
         }
       ]
     case TOGGLE_TODO:
-      return state.map( (todo,index) => {
-        if(action.index === index){
-          return Object.assign({},todo,{
+      return state.map((todo, index) => {
+        if (index === action.index) {
+          return Object.assign({}, todo, {
             completed: !todo.completed
           })
         }
         return todo
       })
-    default: return state
-}
-
-function visibilityFilter(state = 'SHOW_ALL',action){
-  switch (action.type){
-    case SET_VISIBILITY_FILTER:
-      return action.filter
-    default: return state
+    default:
+      return state
   }
 }
 
+function todoApp(state = {},action){
+  return {
+    visibilityFilter: visibilityFilter(state.visibilityFilter,action),
+    todos: todos(state.todos,action)
+  }
+}
 
-// function todoApp(state = {},action){
-//   return {
-//     visibilityFilter: visibilityFilter(state.visibilityFilter,action),
-//     todos: todos(state.todos,action)
-//   }
-// }
+// const todoApp = combineReducers({
+//   visibilityFilter,
+//   todos
+// })
 
-const todoApp = combineReducers({
-  visibilityFilter,
-  todos
-})
 
-export default todoApp
+module.exports = todoApp
